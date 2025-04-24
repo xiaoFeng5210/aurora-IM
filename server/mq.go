@@ -7,6 +7,8 @@ import (
 
 	"strconv"
 
+	"os"
+
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -88,4 +90,11 @@ func (mq *RabbitMQ) RegisterUser(uid int64, userType string) error {
 	}
 
 	return nil
+}
+
+// 创建群exchange
+func (mq *RabbitMQ) AddUser2Group(gid int64, uids ...int64) {
+	os.MkdirAll("data/im/server/group/", os.ModePerm)
+
+	fout, err := os.OpenFile("data/im/server/group/"+strconv.FormatInt(gid, 10), os.O_CREATE|os.O_WRONLY, os.ModePerm)
 }
