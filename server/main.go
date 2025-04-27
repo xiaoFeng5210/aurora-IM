@@ -43,3 +43,38 @@ func RegistUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func JoinGroup(w http.ResponseWriter, r *http.Request) {
+	var gid, uid int64
+	var err error
+	if gid, err = strconv.ParseInt(r.PathValue("gid"), 10, 64); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("群id非法"))
+		return
+	}
+	if uid, err = strconv.ParseInt(r.PathValue("uid"), 10, 64); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("用户id非法"))
+		return
+	}
+	if err = GetRabbitMQ().AddUser2Group(gid, uid); err != nil {
+		var gid, uid int64
+		var err error
+		if gid, err = strconv.ParseInt(r.PathValue("gid"), 10, 64); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("群id非法"))
+			return
+		}
+		if uid, err = strconv.ParseInt(r.PathValue("uid"), 10, 64); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("用户id非法"))
+			return
+		}
+		if err = GetRabbitMQ().AddUser2Group(gid, uid); err != nil {
+			log.Printf("用户%d入群%d失败：%s", uid, gid, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("用户入群失败"))
+			return
+		}
+	}
+}
